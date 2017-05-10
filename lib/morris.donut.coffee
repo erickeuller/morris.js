@@ -80,7 +80,7 @@ class Morris.Donut extends Morris.EventEmitter
         @options.backgroundColor, idx, @raphael)
       seg.render()
       @segments.push seg
-      seg.on 'hover', @select
+      seg.on 'hover', @select, @deselect
       seg.on 'click', @click
       last = next
       idx += 1
