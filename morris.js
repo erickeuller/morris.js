@@ -1975,6 +1975,7 @@ Licensed under the BSD-2-Clause License.
 
     function Donut(options) {
       this.resizeHandler = __bind(this.resizeHandler, this);
+      this.deselect = __bind(this.deselect, this);
       this.select = __bind(this.select, this);
       this.click = __bind(this.click, this);
       var _this = this;
@@ -2029,7 +2030,8 @@ Licensed under the BSD-2-Clause License.
         seg = new Morris.DonutSegment(cx, cy, w * 2, w, last, next, this.data[i].color || this.options.colors[idx % this.options.colors.length], this.options.backgroundColor, idx, this.raphael);
         seg.render();
         this.segments.push(seg);
-        seg.on('hover', this.select, this.deselect);
+        seg.on('hoverIn', this.select);
+        seg.on('hoverOut', this.deselect);
         seg.on('click', this.click);
         last = next;
         idx += 1;
@@ -2080,8 +2082,13 @@ Licensed under the BSD-2-Clause License.
       }
       segment = this.segments[idx];
       segment.select();
-      row = this.data[idx];
-      return this.setLabels(row.label, this.options.formatter(row.value, row));
+      return row = this.data[idx];
+    };
+
+    Donut.prototype.deselect = function(idx) {
+      var s;
+      s = this.segments[idx];
+      return s.deselect();
     };
 
     Donut.prototype.setLabels = function(label1, label2) {
@@ -2174,7 +2181,9 @@ Licensed under the BSD-2-Clause License.
       var _this = this;
       this.arc = this.drawDonutArc(this.hilight, this.color);
       return this.seg = this.drawDonutSegment(this.path, this.color, this.backgroundColor, function() {
-        return _this.fire('hover', _this.index);
+        return _this.fire('hoverIn', _this.index);
+      }, function() {
+        return _this.fire('hoverOut', _this.index);
       }, function() {
         return _this.fire('click', _this.index);
       });
@@ -2188,12 +2197,12 @@ Licensed under the BSD-2-Clause License.
       });
     };
 
-    DonutSegment.prototype.drawDonutSegment = function(path, fillColor, strokeColor, hoverFunction, clickFunction) {
+    DonutSegment.prototype.drawDonutSegment = function(path, fillColor, strokeColor, hoverInFunction, hoverOutFunction, clickFunction) {
       return this.raphael.path(path).attr({
         fill: fillColor,
         stroke: strokeColor,
         'stroke-width': 3
-      }).hover(hoverFunction).click(clickFunction);
+      }).hover(hoverInFunction, hoverOutFunction).click(clickFunction);
     };
 
     DonutSegment.prototype.select = function() {
