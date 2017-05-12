@@ -72,6 +72,7 @@ class Morris.Donut extends Morris.EventEmitter
     last = 0
     idx = 0
     @segments = []
+    @selected = undefined
     for value, i in @values
       next = last + min + C * (value / total)
       seg = new Morris.DonutSegment(
@@ -80,8 +81,8 @@ class Morris.Donut extends Morris.EventEmitter
         @options.backgroundColor, idx, @raphael)
       seg.render()
       @segments.push seg
-      seg.on 'hoverIn', @select
-      seg.on 'hoverOut', @deselect
+      seg.on 'hoverIn', @hoverIn
+      seg.on 'hoverOut', @hoverOut
       seg.on 'click', @click
       last = next
       idx += 1
@@ -106,17 +107,27 @@ class Morris.Donut extends Morris.EventEmitter
   click: (idx) =>
     @fire 'click', idx, @data[idx]
 
+  hoverIn: (idx) =>
+    @select idx
+    @fire 'hoverIn', idx, @data[idx]
+
+  hoverOut: (idx) =>
+    @deselect idx
+    @fire 'hoverOut', idx, @data[idx]
+
 # Select the segment at the given index.
   select: (idx) =>
     s.deselect() for s in @segments
     segment = @segments[idx]
     segment.select()
     row = @data[idx]
+    @selected = row
 #    @setLabels(row.label, @options.formatter(row.value, row))
 
   deselect: (idx) =>
     s = @segments[idx]
     s.deselect()
+    @selected = undefined
 
 # @private
   setLabels: (label1, label2) ->
